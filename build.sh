@@ -7,7 +7,7 @@ export PATH="$(realpath ../../clang-r547379/bin):$PATH"
 
 export KROOT="$(realpath ../)"
 
-export OUT="$(pwd)/out"
+export OUT="${KROOT}/out"
 
 export BUILD_OPTIONS=(
     -C "${KROOT}"
@@ -57,17 +57,19 @@ modules_install() {
 make_anykernel() {
   rm -rf {Image,dtb,dtb.img,dtbo.img,modules/vendor/lib/modules,modules/system/lib/modules}
 
+  mkdir -p modules/{system,vendor}/lib/modules
+
   cp "${OUT}/arch/arm64/boot/Image" Image
 
   python mkdtboimg.py create dtbo.img --page_size=4096 "${OUT}/arch/arm64/boot/dts/vendor/qcom/vili-sm8350-overlay.dtbo"
 
   cp "${OUT}/arch/arm64/boot/dts/vendor/qcom/lahaina-v2.1.dtb" dtb
 
-  ./place-modules.sh "${OUT}/modules_install/lib/modules/*/" modules/vendor/lib/modules "/vendor/lib/modules"
+  ./place-modules.sh "${OUT}/modules_install/lib/modules"/* modules/vendor/lib/modules "/vendor/lib/modules"
 
   find modules -name "*.ko" -exec llvm-strip --strip-unneeded -g {} \;
 
-  zip -r lord-anykernel.zip * -x lord-anykernel.zip place-modules.sh mkdtboimg.py .gitignore .build-placeholder
+  zip -r lord-anykernel.zip * -x *anykernel.zip place-modules.sh mkdtboimg.py .gitignore .build-placeholder
 }
 
 

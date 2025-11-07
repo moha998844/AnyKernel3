@@ -4,3 +4,7 @@ Image*
 dtb
 dtb.img
 dtbo.img
+*.ko
+modules.*
+modules/vendor/lib/modules/*
+modules/system/lib/modules/*
