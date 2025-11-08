@@ -69,7 +69,7 @@ make_anykernel() {
 
   find modules -name "*.ko" -exec llvm-strip --strip-unneeded -g {} \;
 
-  zip -r lord-anykernel.zip * -x *anykernel.zip place-modules.sh mkdtboimg.py .gitignore .build-placeholder
+  zip -r "lord-$ZIPPREFIX-anykernel.zip" * -x *anykernel.zip place-modules.sh mkdtboimg.py .gitignore .build-placeholder
 }
 
 
