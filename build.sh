@@ -69,7 +69,9 @@ make_anykernel() {
 
   find modules -name "*.ko" -exec llvm-strip --strip-unneeded -g {} \;
 
-  zip -r "lord-$ZIPPREFIX-anykernel.zip" * -x *anykernel.zip place-modules.sh mkdtboimg.py .gitignore .build-placeholder
+  rm -f "lord-$ZIPPREFIX-anykernel.zip"
+
+  zip -r "lord-$ZIPPREFIX-anykernel.zip" * -x *anykernel.zip place-modules.sh mkdtboimg.py .gitignore .build-placeholder *.txt
 }
 
 
@@ -86,4 +88,4 @@ configure
 
 
 # Build command
-# BUILD=1 ANYKERNEL=1 ./build.sh
+# BUILD=1 ANYKERNEL=1 ZIPPREFIX=test ./build.sh
