@@ -37,7 +37,7 @@ configure() {
         vendor/debugfs.config \
         vendor/xiaomi_QGKI.config \
         vendor/vili_QGKI.config \
-        lord.config
+        
 }
 
 build_image() {
