@@ -3,7 +3,7 @@
 set -e
 
 # Set correct path
-export PATH="$(realpath ../../clang-r522817/bin):$PATH"
+export PATH="$(realpath ../../clang-r547379/bin):$PATH"
 
 export KROOT="$(realpath ../)"
 
