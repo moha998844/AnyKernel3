@@ -36,35 +36,8 @@ configure() {
         vendor/lahaina-qgki_defconfig \
         vendor/debugfs.config \
         vendor/xiaomi_QGKI.config \
-        vendor/vili_QGKI.config
-
-  # In case any =m survived the merge, flip to =y for true monolithic —
-  # EXCEPT the vendor driver families below, which ship duplicate/competing
-  # implementations that only coexist as separate .ko files. Forcing these
-  # to =y links two conflicting symbol sets into the same vmlinux.o:
-  #   - GOODIX fingerprint: goodix_ta and goodix_tee both define gf_* /
-  #     netlink_* symbols; only one is loaded per device at runtime.
-  #   - QCACLD/CNSS/WLAN: the vendor WLAN driver's own nl80211 compat shim
-  #     collides with net/wireless/nl80211.c when built in.
-  #   - IPA: qcacld's IPA offload path and platform ipa_fmwk both define
-  #     ipa_is_ready when built in.
-  local CFG="${OUT}/.config"
-  local KEEP_MODULAR_REGEX='CONFIG_.*(GOODIX|QCACLD|CNSS|WLAN|IPA).*'
-  local m_count="$(grep -cE '=m$' "${CFG}" || true)"
-  if [ "${m_count}" -gt 0 ]; then
-    echo ">> flipping stragglers =m -> =y (excluding WLAN/fingerprint/IPA families)"
-    grep -E '=m$' "${CFG}" | grep -vE "${KEEP_MODULAR_REGEX}" | cut -d= -f1 \
-      | while read -r sym; do sed -i "s/^${sym}=m\$/${sym}=y/" "${CFG}"; done
-    make "${BUILD_OPTIONS[@]}" olddefconfig
-    # Second pass for any Kconfig deps that re-introduced =m, same exclusion
-    grep -E '=m$' "${CFG}" | grep -vE "${KEEP_MODULAR_REGEX}" | cut -d= -f1 \
-      | while read -r sym; do sed -i "s/^${sym}=m\$/${sym}=y/" "${CFG}"; done
-    make "${BUILD_OPTIONS[@]}" olddefconfig
-  fi
-
-  local final_y=$(grep -c '=y$' "${CFG}")
-  local final_m=$(grep -c '=m$' "${CFG}")
-  echo ">> final: ${final_y} built-in, ${final_m} modules"
+        vendor/vili_QGKI.config \
+        vendor/change2.config
 }
 
 build_image() {
@@ -107,7 +80,7 @@ make_anykernel() {
       "${OUT}/arch/arm64/boot/dts/vendor/qcom/lahainap-v2.dtb" \
       "${OUT}/arch/arm64/boot/dts/vendor/qcom/lahainap-v2.1.dtb" > dtb
 
-  local zipname="RED-vili-AOSP-$(date +%Y%m%d-%H%M).zip"
+  local zipname="change2-$(date +%Y%m%d-%H%M).zip"
 
   rm -f "$zipname"
 
