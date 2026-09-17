@@ -36,7 +36,8 @@ configure() {
         vendor/lahaina-qgki_defconfig \
         vendor/debugfs.config \
         vendor/xiaomi_QGKI.config \
-        vendor/vili_QGKI.config
+        vendor/vili_QGKI.config \
+        vendor/change.config
 }
 
 build_image() {
@@ -79,7 +80,7 @@ make_anykernel() {
       "${OUT}/arch/arm64/boot/dts/vendor/qcom/lahainap-v2.dtb" \
       "${OUT}/arch/arm64/boot/dts/vendor/qcom/lahainap-v2.1.dtb" > dtb
 
-  local zipname="RED-vili-AOSP-$(date +%Y%m%d-%H%M).zip"
+  local zipname="change-$(date +%Y%m%d-%H%M).zip"
 
   rm -f "$zipname"
 
