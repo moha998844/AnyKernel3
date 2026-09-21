@@ -3,7 +3,7 @@
 set -e
 
 # Set correct path
-export PATH="$(realpath ../../clang-r547379/bin):$PATH"
+export PATH="\((realpath ../../clang-r547379/bin):\)PATH"
 
 export KROOT="$(realpath ../)"
 
@@ -32,6 +32,14 @@ export KCFLAGS="-Wno-incompatible-function-pointer-types -Wno-unused-function -W
 export TARGET_PRODUCT=vili
 
 configure() {
+  # Injection automatique des correctifs de symboles faibles pour LTO avant la configuration
+  if [ -f "drivers/staging/qcacld-3.0/components/ipa/dispatcher/src/wlan_ipa_obj_mgmt_api.c" ]; then
+    sed -i 's/bool ipa_is_ready(void)/bool __attribute__((weak)) ipa_is_ready(void)/g' drivers/staging/qcacld-3.0/components/ipa/dispatcher/src/wlan_ipa_obj_mgmt_api.c
+  fi
+  if [ -f "drivers/staging/qca-wifi-host-cmn/utils/nlink/src/wlan_nlink_srv.c" ]; then
+    sed -i 's/void \*nl80211hdr_put/void \*__attribute__((weak)) nl80211hdr_put/g' drivers/staging/qca-wifi-host-cmn/utils/nlink/src/wlan_nlink_srv.c
+  fi
+
   make "${BUILD_OPTIONS[@]}" \
         vendor/lahaina-qgki_defconfig \
         vendor/debugfs.config \
@@ -39,7 +47,6 @@ configure() {
         vendor/vili_QGKI.config \
         vendor/change.config \
         vendor/ksu.config 
-        
 }
 
 build_image() {
@@ -55,7 +62,6 @@ modules_install() {
   make "${BUILD_OPTIONS[@]}" modules_install INSTALL_MOD_PATH=modules_install
 }
 
-
 make_anykernel() {
   rm -rf {Image,dtb,dtb.img,dtbo.img,modules/vendor/lib/modules,modules/system/lib/modules}
 
@@ -69,12 +75,6 @@ make_anykernel() {
 
   find modules -name "*.ko" -exec llvm-strip --strip-unneeded -g {} \;
 
-  # Concatenate every lahaina variant (v1, v2, v2.1, plus lahainap siblings)
-  # into a single multi-DTB blob. Qcom's bootloader walks the concatenated
-  # stream, matches on SoC/board ID from each DTB's root compatibility, and
-  # picks the right one for the device. Shipping only one variant breaks
-  # boot on ROMs that expect a different revision — Titanic does this too
-  # (8 MB dtb with 17 fragments), ours was previously only 479 KB with one.
   cat "${OUT}/arch/arm64/boot/dts/vendor/qcom/lahaina.dtb" \
       "${OUT}/arch/arm64/boot/dts/vendor/qcom/lahaina-v2.dtb" \
       "${OUT}/arch/arm64/boot/dts/vendor/qcom/lahaina-v2.1.dtb" \
@@ -91,13 +91,8 @@ make_anykernel() {
   echo ">> Output: $zipname"
 }
 
-
 configure
 
 [ "$BUILD" = 1 ] && (build_image && build_modules && modules_install)
 
 [ "$ANYKERNEL" = 1 ] && make_anykernel
-
-
-# Build command
-# BUILD=1 ANYKERNEL=1 ZIPPREFIX=v1.2.3 ./op.sh
