@@ -37,7 +37,8 @@ configure() {
         vendor/debugfs.config \
         vendor/xiaomi_QGKI.config \
         vendor/vili_QGKI.config \
-        vendor/change2.config
+        vendor/change2.config \
+        vendor/droid.config
 }
 
 build_image() {
