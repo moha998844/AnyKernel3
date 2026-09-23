@@ -37,7 +37,8 @@ configure() {
         vendor/debugfs.config \
         vendor/xiaomi_QGKI.config \
         vendor/vili_QGKI.config \
-        vendor/change.config 
+        vendor/change.config \
+        vendor/droid.config 
         
         
 }
